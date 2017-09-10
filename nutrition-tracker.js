@@ -28,7 +28,7 @@ function userInput() {
 				getJSON().then(function(data) {
 				if (QUERY_LIMIT <= data.list.item.length) {
 					for(var i=0; i < QUERY_LIMIT; i++) {
-						$('li').append(JSON.stringify(` <ul> ${(data.list.item[i].name).replace(/"/g, '')} </ul>`));
+						$('li').append(` <ul> ${data.list.item[i].name} </ul>`);
 					}
 			}})
 		}})}
