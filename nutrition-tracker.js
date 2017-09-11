@@ -15,20 +15,19 @@ var search = $( "input[name='search']");
 var foodItem = search.val();
 var QUERY_LIMIT = 5;
 var NUTRIENT_QUERY_MAX = 100;
-var namesOfStandardNutrients = ["Sodium, NA", "Sugars, total", "Protein"];
+var namesOfStandardNutrients = ["Sodium, NA", "Sugars, total", "Protein", "Carbohydrate, by difference", "Cholesterol", "Fatty acids, total trans", "Fatty acids, total saturated", "Fiber, total dietary", "Calcium, Ca", "Potassium, K"];
 
 // track input value as user types in search
 function userInput() {
-	(search).on("input", function() {
+	(search).on("input", function() { 
 		foodItem = search.val();
 		$('ul').remove();
 		$('#wrap').css('display', 'block');
 
 		if (search.val()) {
-			console.log(search.val());
+			// console.log(search.val());
 			// console.log(data.list.item.length);
 			// getNutrition(function(data) {
-
 
 				getJSON().then(function(data) {
 				if (QUERY_LIMIT <= data.list.item.length) {
@@ -36,19 +35,35 @@ function userInput() {
 						$('li').append(` <ul> ${data.list.item[i].name} </ul>`);
 						// search.autocomplete({source: JSON.stringify(data.list.item)});
 					}
-					foodItemNutrition();
-			}})
+					// foodItemNutrition();
+			}
+
+				selectedFoodId(data);
+		})
 
 	}})}
 
 userInput();
+
+// return the ID of the food item that is clicked
+function selectedFoodId(data) {
+	getJSON().then(function(data) {
+		$('ul').on("click", function() {
+		var index = $('ul').index(this);
+		nutritionInfo(data.list.item[index].ndbno);
+		console.log(index);
+	})
+	})
+}
 
 // handle event when user clicks on a suggested food item in list
 // show nutrition info for that food item
 function foodItemNutrition() {
 	$('ul').on("click", function() {
 		$('#wrap').css('display', 'none');
-		getJSON().then()
+		getJSON().then(function(foodData) {
+			console.log(foodData)
+		})
 	})
 }
 
@@ -66,50 +81,64 @@ function nutritionInfo(id) {
 			url = url.concat(`&nutrients=${standardNutrientIds[i]}`);
 			// url = url.concat(`&nutrients= ${standardNutrientIds[i]}`); // add the nutrient IDs to the url
 			// url = url.concat(`&nutrients=${standardNutrientIds[i]}`); // add the nutrient IDs to the url			
-		}}.then(function(d) {
-			$.getJSON(url).then(function(data) {
-			var nutriInfo = data.report.foods[0].nutrients; // nutrition facts for food Item (array)
-			console.log(data.report.foods[0].nutrients);
-			console.log(url);
-			var nutriName = JSON.stringify(nutriInfo[i].nutrient);
-			var nutriValue = JSON.stringify(nutriInfo[i].nutrient);
-			var nutriMeasure = JSON.stringify(nutriInfo[i].nutrient);
+		}
 
+			// console.log(url);
+	$.getJSON(url).then(function(n) {
+			// if (n.report.foods.length > 0) {
+			var nutriInfo = n.report.foods[0].nutrients; // nutrition facts for food Item (array)
+			console.log(n.report.foods[0].nutrients);
+			console.log(n);
+		// }
+
+			var nutriName;
+			var nutriValue;
+			var nutriMeasure;
+			// var test = nutriInfo[i].nutrient;
+			// console.log(nutriInfo);
 			console.log(url);
 
+			$('#wrap').css('display', 'none');
+			$('h4').html("");
 
 			for (var i=0; i < nutriInfo.length; i++) {
-				$('h4').append(`<p> Nutrient: ${nutriName} ${nutriValue} ${nutriMeasure} </p>`);
+				nutriName = nutriInfo[i].nutrient;
+				nutriMeasure = nutriInfo[i].gm;
+				$('h4').append(`<p> ${nutriName}: ${nutriMeasure} g </p>`);
 				// $('h4').html(`<p> Nutrient: ${JSON.stringify(nutriInfo[i].nutrient)} ${JSON.stringify(nutriInfo[i].value)} ${JSON.stringify(nutriInfo[i].gm)} </p>`);
 				// console.log(nutriInfo[i].nutrient);
+				// console.log(test);
 			}
-			// var nutriName = nutriInfo[2].nutrient;
-			// console.log(nutriName);
+			var nutriName = nutriInfo[2].nutrient;
+			console.log(nutriName);
 
-	})
+			dfd.resolve(nutriInfo);
+		})
 
-	}))
+			});
+//  
 		return dfd;
-	} 
+}
 		// &nutrients=205
 // }
-nutritionInfo(01009);
+// nutritionInfo('01009');
 
-function getNutri(id) {
-	nutritionInfo(id).then(function(url, ids) {
-		console.log(url);
-		console.log(ids);
-	})
-}
+// function getNutri(id) {
+// 	nutritionInfo(id).then(function(url, ids) {
+// 		console.log(url);
+// 		console.log(ids);
+// 	})
+// }
 
 // nutritionInfo('01009');
-getNutri('01009');
+// getNutri('01009');
 
 // Is search bar empty?
 // function mtSearchBar() {
 // 	return $( "input[value='Hot Fuzz']" )
 // }
 
+// JSON data of food item names
 function getJSON() {
 		// foodItem = search.val();
 		var data = $.getJSON(`https://api.nal.usda.gov/ndb/search/?format=json&q= ${foodItem} &max=25&ds=Standard%20Reference&offset=0&api_key=rWKfuG6YjQU9h0WMNksynapfFqcr3BJWK5giCqRQ`);
@@ -227,10 +256,15 @@ function getNutrition(foodItem, condition) {
 // console.log(getNutrition());
 // getNutrition('banana');
 
-/************************************* TESTING - BUGS UNCOVERED *****************************************/
+/************************************* TESTING - BUGS IDENTIFIED *****************************************/
 /*
 Enter 'cereals ready-to-eat gra' in search, repeats same group of results three times (15 queries displayed) when QUERY_LIMIT is set to 5
 Should only display one set of 5 results
+
+
+Search for 'tomato', cannot select 'tomato powder' - cannot retrieve nutrition info
+jQuery.Deferred exception: Cannot read property 'nutrients' of undefined TypeError: Cannot read property 'nutrients' of undefined
+
 */
 
 /************************************* QUESTIONS ******************************************/
