@@ -87,6 +87,7 @@ function nutritionInfo(id) {
 	$.getJSON(url).then(function(n) {
 			// if (n.report.foods.length > 0) {
 			var nutriInfo = n.report.foods[0].nutrients; // nutrition facts for food Item (array)
+			var foodName = n.report.foods[0].name; // nutrition facts for food Item (array)
 			console.log(n.report.foods[0].nutrients);
 			console.log(n);
 		// }
@@ -100,6 +101,7 @@ function nutritionInfo(id) {
 
 			$('#wrap').css('display', 'none');
 			$('h4').html("");
+			$('h4').append(`<div id='foodName'> ${foodName} </div>`);
 
 			for (var i=0; i < nutriInfo.length; i++) {
 				nutriName = nutriInfo[i].nutrient;
