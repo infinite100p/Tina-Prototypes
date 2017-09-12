@@ -12,15 +12,36 @@ have user check if food belongs to standard / branded data source, and filter re
 
 */
 var search = $( "input[name='search']");
-var foodItem = search.val();
+var food_Item = search.val();
 var QUERY_LIMIT = 5;
 var NUTRIENT_QUERY_MAX = 100;
-var namesOfStandardNutrients = ["Sodium, NA", "Sugars, total", "Protein", "Carbohydrate, by difference", "Cholesterol", "Fatty acids, total trans", "Fatty acids, total saturated", "Fiber, total dietary", "Calcium, Ca", "Potassium, K"];
+var NAMES_OF_STANDARD_NUTRIENTS = ["Sodium, NA", "Sugars, total", "Protein", "Carbohydrate, by difference", "Cholesterol", "Fatty acids, total trans", "Fatty acids, total saturated", "Fiber, total dietary", "Calcium, Ca", "Potassium, K"];
+
+
+var Google_API_Key = 'AIzaSyChFmxcotyJD1iIKw0WL-uy2AXO7o5xF9Q'; 
+var Google_Search_Engine_Id = '012029723201963103841:tmf9zdgfp_k';
+
+// get image from Google Custom Search API
+// function getImage() {
+// 	var dfd = $.Deferred();
+// 	var imgURL;
+// 	$.getJSON(`https://www.googleapis.com/customsearch/v1?key=${Google_API_Key}&content_copy&cx=${Google_Search_Engine_Id}&searchType=image&num=3`).then(
+// 		function(data) {
+// 			imgURL = JSON.stringify(data.items[1].link);
+// 			dfd.resolve(imgURL);
+
+// 			// console.log(data.items[1].link);
+// 		})
+	
+// 	return dfd;
+// }
+
+// getImage();
 
 // track input value as user types in search
 function userInput() {
 	(search).on("input", function() { 
-		foodItem = search.val();
+		food_Item = search.val();
 		$('ul').remove();
 		$('#wrap').css('display', 'block');
 
@@ -35,7 +56,7 @@ function userInput() {
 						$('li').append(` <ul> ${data.list.item[i].name} </ul>`);
 						// search.autocomplete({source: JSON.stringify(data.list.item)});
 					}
-					// foodItemNutrition();
+					// food_ItemNutrition();
 			}
 
 				selectedFoodId(data);
@@ -45,15 +66,40 @@ function userInput() {
 
 userInput();
 
-// return the ID of the food item that is clicked
+// display food nutrition info
 function selectedFoodId(data) {
 	getJSON().then(function(data) {
 		$('ul').on("click", function() {
 		var index = $('ul').index(this);
-		nutritionInfo(data.list.item[index].ndbno);
+
+
+		nutritionInfo(data.list.item[index].ndbno).then(function(foodName) {
+			var googleSearch_API_URL = `https://www.googleapis.com/customsearch/v1?key=${Google_API_Key}&content_copy&cx=${Google_Search_Engine_Id}`;
+			googleSearch_API_URL.concat(`&q=${foodName}`); // is concat an asynchonous function?
+
+				// console.log(foodName);
+				console.log(googleSearch_API_URL); // does not return url with query concatenated...
+
+
+			$.getJSON(removeCommas(googleSearch_API_URL.concat(`&q=${foodName}`))).then(function(googleImgData) {
+				var imgURL = googleImgData.items[1].link;
+				$('h4').append(`<img src=${imgURL} />`);
+				console.log(removeCommas(googleSearch_API_URL.concat(`&q=${foodName}`)));
+				console.log(imgURL);
+			})
+
+				
+
+			})
+			// console.log(foodName);
+		});
 		console.log(index);
 	})
-	})
+}
+
+// remove all commas in given string
+function removeCommas(str) {
+	str.replace(",", "");
 }
 
 // handle event when user clicks on a suggested food item in list
@@ -74,7 +120,7 @@ function nutritionInfo(id) {
 	var dfd = $.Deferred();
 
 	getNutrientsData().then(function(data) {
-		var standardNutri = getStandardNutrients(data, namesOfStandardNutrients); // array of names & IDs for standard nutrients
+		var standardNutri = getStandardNutrients(data, NAMES_OF_STANDARD_NUTRIENTS); // array of names & IDs for standard nutrients
 		var standardNutrientIds = nutrientsIds(standardNutri) // array of IDs for standard nutrients only
 		var str = "";
 		for(var i=0; i < standardNutrientIds.length; i++) {
@@ -85,6 +131,7 @@ function nutritionInfo(id) {
 
 			// console.log(url);
 	$.getJSON(url).then(function(n) {
+
 			// if (n.report.foods.length > 0) {
 			var nutriInfo = n.report.foods[0].nutrients; // nutrition facts for food Item (array)
 			var foodName = n.report.foods[0].name; // nutrition facts for food Item (array)
@@ -95,13 +142,17 @@ function nutritionInfo(id) {
 			var nutriName;
 			var nutriValue;
 			var nutriMeasure;
+			
 			// var test = nutriInfo[i].nutrient;
 			// console.log(nutriInfo);
 			console.log(url);
 
 			$('#wrap').css('display', 'none');
 			$('h4').html("");
-			$('h4').append(`<div id='foodName'> ${foodName} </div>`);
+
+								
+				$('h4').append(`<div id='foodName'> ${foodName} </div>`);
+				
 
 			for (var i=0; i < nutriInfo.length; i++) {
 				nutriName = nutriInfo[i].nutrient;
@@ -111,14 +162,20 @@ function nutritionInfo(id) {
 				// console.log(nutriInfo[i].nutrient);
 				// console.log(test);
 			}
-			var nutriName = nutriInfo[2].nutrient;
-			console.log(nutriName);
 
-			dfd.resolve(nutriInfo);
-		})
+		// getImage().then(function(imgUrl) {
+		// 	imgUrl.concat(`&q=${nutriName}`);
+		// 	$('h4').append(`<img src=${imgUrl} />`);
+
+			// var nutriName = nutriInfo[2].nutrient;
+			// console.log(foodName);
+
+			dfd.resolve(foodName);
+		// })
 
 			});
 //  
+})
 		return dfd;
 }
 		// &nutrients=205
@@ -142,8 +199,8 @@ function nutritionInfo(id) {
 
 // JSON data of food item names
 function getJSON() {
-		// foodItem = search.val();
-		var data = $.getJSON(`https://api.nal.usda.gov/ndb/search/?format=json&q= ${foodItem} &max=25&ds=Standard%20Reference&offset=0&api_key=rWKfuG6YjQU9h0WMNksynapfFqcr3BJWK5giCqRQ`);
+		// food_Item = search.val();
+		var data = $.getJSON(`https://api.nal.usda.gov/ndb/search/?format=json&q= ${food_Item} &max=25&ds=Standard%20Reference&offset=0&api_key=rWKfuG6YjQU9h0WMNksynapfFqcr3BJWK5giCqRQ`);
 	 // data;
 	 return data;
 }
@@ -159,7 +216,7 @@ function getNutrientsData() {
 			var nutri = d.list.item[i]
 			nutrients.push({name: nutri.name, id: nutri.id}); // list of all nutrients from JSON data
 			// console.log(nutrients);
-			// dfd.resolve(getStandardNutrients(nutrients, namesOfStandardNutrients));
+			// dfd.resolve(getStandardNutrients(nutrients, NAMES_OF_STANDARD_NUTRIENTS));
 			
 	}
 	// console.log(nutrients);
@@ -195,7 +252,7 @@ function nutrientsIds(arr) {
 
 console.log(nutrientsIds([{name: 'Iron', id: '10'}, {name: 'protein', id: '20'}]));
 
-// console.log(getStandardNutrients( [{name: 'Iron', id: '10'}, {name: 'protein', id: '20'}], namesOfStandardNutrients));
+// console.log(getStandardNutrients( [{name: 'Iron', id: '10'}, {name: 'protein', id: '20'}], NAMES_OF_STANDARD_NUTRIENTS));
 
 // console.log(getNutrientsData());
 
@@ -247,7 +304,7 @@ function getNutrientId(nutrient) {
 var nutrient = {};
 
 // return nutrition facts for food item with most pertinent facts hightlighted (e.g. 1 banana)
-function getNutrition(foodItem, condition) {
+function getNutrition(food_Item, condition) {
 	getJSON().then(function(data) {
 		$('h4').html(JSON.stringify(data.list.item[0].name));
 		// $('#test').html(JSON.stringify(data));
@@ -272,10 +329,10 @@ jQuery.Deferred exception: Cannot read property 'nutrients' of undefined TypeErr
 /************************************* QUESTIONS ******************************************/
 
 /* How to use autocomplete on JSON data using jQuery UI 
-   ERROR: JSON.Deferred undefined when calling data. Why is foodItem undefined?
+   ERROR: JSON.Deferred undefined when calling data. Why is food_Item undefined?
 */    
 
-// var myUrl = `https://api.nal.usda.gov/ndb/search/?format=json&q= ${foodItem} &max=25&ds=Standard%20Reference&offset=0&api_key=rWKfuG6YjQU9h0WMNksynapfFqcr3BJWK5giCqRQ`;
+// var myUrl = `https://api.nal.usda.gov/ndb/search/?format=json&q= ${food_Item} &max=25&ds=Standard%20Reference&offset=0&api_key=rWKfuG6YjQU9h0WMNksynapfFqcr3BJWK5giCqRQ`;
 	          
 // search.autocomplete({
 //     source: function(request, response) {
