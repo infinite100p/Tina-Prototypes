@@ -74,32 +74,32 @@ function selectedFoodId(data) {
 
 
 		nutritionInfo(data.list.item[index].ndbno).then(function(foodName) {
-			var googleSearch_API_URL = `https://www.googleapis.com/customsearch/v1?key=${Google_API_Key}&content_copy&cx=${Google_Search_Engine_Id}`;
+			var googleSearch_API_URL = `https://www.googleapis.com/customsearch/v1?key=${Google_API_Key}&content_copy&searchType=image&cx=${Google_Search_Engine_Id}`;
 			googleSearch_API_URL.concat(`&q=${foodName}`); // is concat an asynchonous function?
 
 				// console.log(foodName);
 				console.log(googleSearch_API_URL); // does not return url with query concatenated...
 
 
-			$.getJSON(removeCommas(googleSearch_API_URL.concat(`&q=${foodName}`))).then(function(googleImgData) {
-				var imgURL = googleImgData.items[1].link;
+			$.getJSON(removeCommas(googleSearch_API_URL.concat(`&q=${foodName}&exactTerms=${foodName}`))).then(function(googleImgData) {
+				var imgURL = googleImgData.items[2].link;
 				$('h4').append(`<img src=${imgURL} />`);
 				console.log(removeCommas(googleSearch_API_URL.concat(`&q=${foodName}`)));
-				console.log(imgURL);
+				// console.log(imgURL);
 			})
 
-				
+				console.log(removeCommas(googleSearch_API_URL.concat(`&q=${foodName}`)));
 
 			})
 			// console.log(foodName);
 		});
-		console.log(index);
+		// console.log(index);
 	})
 }
 
 // remove all commas in given string
 function removeCommas(str) {
-	str.replace(",", "");
+	return str.replace(/,/g, "").replace(/ /g, "").replace('"', "");
 }
 
 // handle event when user clicks on a suggested food item in list
