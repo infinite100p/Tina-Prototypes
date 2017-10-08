@@ -1,0 +1,114 @@
+body {
+	text-align: center;
+	background-color: beige;
+	width: 100%;
+	height: 500px;
+	margin: auto;
+	/*font-family: Helvetica;*/
+}
+
+#header {
+	background-color: gold;
+	padding: 0.5%;
+}
+
+.section {
+	position: relative;
+	background-color: gold;
+	width: 50%;
+	margin: auto;
+	margin-bottom: 2%;
+}
+
+#manhattan {
+	height: 500px;
+}
+/*
+#outer {
+	border: 1px solid #000;
+	width: 1000px;
+	height: 200px;
+}*/
+
+.wrap {
+	position: relative;
+	height: 7%;
+	width: 100%;
+
+}
+
+.collapse {
+	/*transform: rotate(180deg);*/
+	position: absolute;
+	right: 27%;
+	font-weight: bold;
+	top: 3%;
+}
+
+/*.collapse-1 {
+	top: 3%;
+}
+.collapse-2 {
+	top: 3%;
+}*/
+
+.collapse: hover {
+	cursor: pointer;
+}
+
+.fa-minus {
+	font-size: 0.7em;
+}
+
+.fa-check-circle-o {
+	color: green;
+	font-size: 1.2em;
+}
+
+.fa-bus {
+	display: inline;
+}
+
+.btn-primary {
+	background-color: #ff5050;
+	color: #f2f2f2;
+	padding: 1%;
+	margin-bottom: 2%;
+	font-weight: bold;
+	font-size: 0.7em;
+}
+
+#icon {
+	display: inline-block;
+/*	width: 5px;
+	height: 5px;*/
+	/*border: 1px solid #000;*/
+}
+
+#icon:hover {
+	color: darkred;
+	cursor: pointer;
+}
+
+.free {
+	color: red;
+	font-size: 0.8em;
+	text-transform: uppercase;
+}
+
+
+/*#coffee-shops {
+	line-height: 1.3em;
+	padding-bottom: %;
+}*/
+
+#info0 {
+	line-height: 1.3em;
+}
+
+/*#coffee-shops p{
+	line-height: 0.5em;
+
+}*/
+
+
