@@ -27,10 +27,10 @@ function getLocVal() {
 
 /** API Initialization **/
 function getListingsJSON(listing_id) {
-	return $.getJSON(`https://api2.yp.com/listings/v1/details?listingid=${listing_id}&key=${YP_API_Key}&format=json`);
+	return $.getJSON(`http://api2.yp.com/listings/v1/details?listingid=${listing_id}&key=${YP_API_Key}&format=json`);
 }
 function getSearchJSON(query, loc) {
-	return $.getJSON(`https://api2.yp.com/listings/v1/search?searchloc=${loc}&term=${query}&format=json&sort=distance&radius=5&listingcount=${listingCount}&key=${YP_API_Key}`);
+	return $.getJSON(`http://api2.yp.com/listings/v1/search?searchloc=${loc}&term=${query}&format=json&sort=distance&radius=5&listingcount=${listingCount}&key=${YP_API_Key}`);
 }
 
 /* * * * * * * * * * *  MAIN FUNCTION CALLS  * * * * * * * * * * */
