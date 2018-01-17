@@ -10,7 +10,7 @@ var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'
 // array of property names to display
 var propertyNames = ['businessName', 'type', 'email', 'phone', 'hours', 'address'];
 
-var listingCount = 10;
+var listingCount = 12;
 
 var zipCode = 10001; 
 var cityState = 'Manhattan%2C+NY';
@@ -35,17 +35,29 @@ function getSearchJSON(query, loc) {
 
 /* * * * * * * * * * *  MAIN FUNCTION CALLS  * * * * * * * * * * */
 
-// displayAllProperties('13519');
-// displayAllProperties('pizza');
-// getListingsBySearch(null);
-// displayAllListings([533822829, 4380518, 1023009]);
-
-// displayAllListings('pizza');
+getSearchVal();
 
 /* * * * * * * * * * *  USER SEARCH FUNCTIONS  * * * * * * * * * * */
 /*  user can search by business type and location 
 	show relevant results, auto-generate preview
 */
+
+// return updated search value when user hits enter
+function getSearchVal() {
+	let search = $('#search');
+	let loc = $('#loc');
+
+	$('#search-btn').click(function() {
+		displayAllProperties(search.val(), loc.val());
+	})
+
+	$('#search, #loc').keypress(function(e) {
+	    if (e.which === 13 && $('input').val()) {
+	    		displayAllProperties(search.val(), loc.val());
+	    }
+	});
+}
+
 // return array of listing IDs of search results
 function getListingsBySearch(query, loc) {
 	var dfd = $.Deferred();
@@ -56,80 +68,35 @@ function getListingsBySearch(query, loc) {
 			var allListings = data.searchResult.searchListings.searchListing; 
 			var listing_ids = [];
 
-			// try {
-			//   a = JSON.parse(data);
-			// } catch (e) {
-			//   alert(e); 
-			// }
+
 	  for (var i=0; i < allListings.length; i++) {
   	 	 listing_ids.push(allListings[i].listingId);
   	 	 dfd.resolve(listing_ids);
 	  }	
-      
-
-// fetch('/resource').then(function(response) {
-//   if (response.status === 404) {
-//   	alert('Invalid Query');
-//     // return response.json()
-//   } else {
-//   	  listing_ids.push(allListings[i].listingId);
-//       dfd.resolve(listing_ids);
-//   }
-// })
-
-
-// ).then(function(object) {
-  // if (object.type === 'error') {
-  //   console.log(object.type, object.message)
-  // } else {
-    // console.log('success')
-  // }
-// })
-							
 	})
 	
-	
 	return dfd;
-}
-
-// getListingsBySearch('pizza').then(function(arr) {
-// 	console.log(arr);
-// });
+}	  
+							
 
 // display properties for all listings in array
 // @param arr array of listing ids (e.g. [533822829, 4380518, 1023009])
 function displayAllListings(query) {
 	getListingsBySearch(query).then(function(arr) {
-		// arr = [533822829, 4380518, 1023009];
-		// array of key : value pairs
-		console.log(arr);
 		for (var i = 0; i < arr.length; i++) {
 			displayAllProperties(arr[i], query);
-			// console.log(displayAllProperties(arr[i]));
 		}
 	});
 }
 
-// function getListingsBySearch(query) {
-// 	getSearchJSON(query).then(function(data) {
 
-// 	})
-// } 
-
-// var testArr = getListingsBySearch('pizza').then(function(arr) {
-// 	return arr;
-// });
-
-// console.log('testArr :' + testArr);
 /* * * * * * * * * * * *  DISPLAY FUNCTIONS  * * * * * * * * * * * */
 
 // display all listing details for a business listing
 function displayAllProperties(query, loc) {
 	$('#listings').empty(); // reset
 
-	getListingsBySearch(query, loc).then(function(arr) {
-		// var listingCount = arr.length;
-		
+	getListingsBySearch(query, loc).then(function(arr) {		
 		for (var i=0; i < arr.length; i++) {
 			var listingid = arr[i];
 			$('#listings').append(`<div class='listing'>
@@ -142,87 +109,9 @@ function displayAllProperties(query, loc) {
 				$(`#${listingid}`).append(`<div class='${propertyNames[j]}'><ul></ul></div>`);
 				displayProperty(listingid, propertyNames[j]);
 			}			
-		}
-
-			
-		// 	$(`.listing${i}`).append(`<div id='${listingid}'></div>`);
-
-
-		
+		}			
 	})
 }
-
-					// for (var i=0; i < propertyNames.length; i++) {
-					// 	<div class='${propertyNames[i]}'><ul></ul></div>
-					// }
-var val = $("input[type='search']").value;
-var search = $('#search');
-var loc = $('#loc');
-console.log(val);
-var count;
-// return updated search value when user hits enter
-function getSearchVal(inputType) {
-	
-  // var dfd = $.Deferred();
-  // return new Promise(function() {
-	  inputType.keypress(function(e) {
-	    if ((inputType.val() && e.which === 13) || ($('#loc').val() && e.which === 13)) {
-	    	// if (getListingsBySearch(search.val(), $('#loc').val()).length === 0) {
-	    	// 	alert('Invalid');
-	    	// } else {
-
-	    	displayAllProperties(search.val(), $('#loc').val());
-	    	// }
-
-	    	// count = ($('.listing').length);
-	    	// countListings();
-		}
-	  });
-	// });
-  // return dfd;
-}
-
-// count number of dynamically generated listings
-function countListings() {
-	let listings = [];
-	$('.listing').each(function() {
-		listings.push($(this).val())
-	});
-	console.log('count: ' + listings.length);
-	return listings.length;
-}
-
-countListings();
-
-// check that given string is valid zip code 
-
-getSearchVal(search);
-getSearchVal(loc);
-
-// $(document).ready(function() {
-	
-	// getSearchVal().then(function(val) {
-	// 	console.log(val);
-	// 	displayAllProperties(val);
-	// })
-	// displayAllProperties(getSearchVal());
-	// displayAllProperties(' ');
-// })
-
-// displayAllProperties('burger');		
-
-// 		$('#listings').append(`<div class='listing listing${i}'></div>`);
-// 			var l = document.getElementsByClassName('listing');
-// 			// l.append(`<div id='${listing_id}'</div>`);
-// 			$(`.listing2`).append(`<div id='${listing_id}'</div>`);
-
-// 		for (var i=0; i < propertyNames.length; i++) {
-// 			$(`.listing[1] #${listing_id}`).append(`<div class='${propertyNames[i]}'><ul></ul></div>`);
-// 			displayProperty(listing_id, propertyNames[i]);
-			
-// 		}	
-	
-// }
 
 
 // display single property value for a business listing
@@ -273,6 +162,7 @@ function mapPropertyName(data, propertyName) {
 	return propertyinAPI;
 }
 
+// return string representing address from JSON data (format: street, city, state zip code)
 function getAddress(data) {
 	return `${eval(mapPropertyName(data, 'street'))}, ${eval(mapPropertyName(data, 'city'))}, ${eval(mapPropertyName(data, 'state'))} ${eval(mapPropertyName(data, 'zip'))}`; 
 }
@@ -298,11 +188,6 @@ function startAndEndTimes(str) {
 	return formatted.join().replace(',', ' - ');
 }
 
-// console.log(startAndEndTimes('1600-2359'));
-// console.log(startAndEndTimes('1100-1230'));
-
-
-// console.log(JSON.stringify(getListingInfo('13519')));
 
 /* * * * * * * * * * * * * * * * * * * * * * * PREVIOUS CODE * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -312,6 +197,39 @@ function startAndEndTimes(str) {
 // 		return d[propertyName];
 // 	})
 // }
+
+
+// count number of dynamically generated listings
+// function countListings() {
+// 	let listings = [];
+// 	$('.listing').each(function() {
+// 		listings.push($(this).val())
+// 	});
+// 	console.log('count: ' + listings.length);
+// 	return listings.length;
+// }
+
+// countListings();
+
+// check if JSON GET response is valid
+// fetch('/resource').then(function(response) {
+//   if (response.status === 404) {
+//   	alert('Invalid Query');
+//     // return response.json()
+//   } else {
+//   	  listing_ids.push(allListings[i].listingId);
+//       dfd.resolve(listing_ids);
+//   }
+// })
+
+
+// ).then(function(object) {
+  // if (object.type === 'error') {
+  //   console.log(object.type, object.message)
+  // } else {
+    // console.log('success')
+  // }
+// })
 
 /* * * * * * * * * * * * * * * * * * * * * * * ARGHHHH * * * * * * * * * * * * * * * * * * * * * * */
 /*
